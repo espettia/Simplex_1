@@ -79,11 +79,16 @@
     }
 
     rational rational::operator /(rational q2) {
+        if (q2.num() == 0)
+            exit(4);
         rational q2_inv(q2[1], q2[0]);
         return *this * q2_inv;
     }
 
     rational rational::operator /(int n) {
+
+        if (n == 0)
+            exit(4);
         rational q2(n);
         rational q2_inv(q[1], q[0]);
         return *this * q2_inv;
