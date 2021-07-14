@@ -149,10 +149,12 @@
         return q[1];
     }
 
-    void rational::print() {
+    void rational::print(int z) {
         this->simplify();
         if (this->num() == 0) {
-            std::cout << " ";
+            if (z) std::cout << "0";
+            else
+                std::cout << " ";
         }
         else if (this->den() == 1) {
             std::cout << this->num();

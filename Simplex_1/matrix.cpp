@@ -32,10 +32,10 @@ std::vector<rational>& matrix::row(size_t r) {
 		exit(3);
 	return m[r];
 }
-std::vector<rational>& matrix::col(size_t c) {
+std::vector<std::reference_wrapper<rational>> matrix::col(size_t c) {
 	if (c >= this->columns())
 		exit(3);
-	std::vector<rational> ans;
+	std::vector<std::reference_wrapper<rational>> ans;
 	for (size_t i = 0; i < this->rows(); ++i) {
 		ans.push_back(m[i][c]);
 	}

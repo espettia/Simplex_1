@@ -74,7 +74,7 @@ class rational {
 
         int& den();
 
-        void print();
+        void print(int z = 0);
 
 };
 

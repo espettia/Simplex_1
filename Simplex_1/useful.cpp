@@ -1,5 +1,6 @@
 #include <iostream>
 #include "useful.h"
+
 int sgn(int a) {
     return (0 < a) - (a < 0);
 }

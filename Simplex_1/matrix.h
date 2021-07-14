@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <vector>
+#include <functional>
 #include "rational.h"
 
 class matrix
@@ -21,7 +22,7 @@ public:
 	rational& at(size_t r, size_t c);
 
 	std::vector<rational>& row(size_t r);
-	std::vector<rational>& col(size_t c);
+	std::vector<std::reference_wrapper<rational>> col(size_t c);
 
 	bool empty();
 
