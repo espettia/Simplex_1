@@ -9,11 +9,21 @@ private:
 	
 	std::vector<std::vector<rational>> m = { {rational(0)} };
 
-	std::vector<rational> mult(rational, std::vector<rational>);
-
 public:
 
+	matrix(void);
 	matrix(std::vector<std::vector<rational>>);
+	matrix operator =(matrix m_out);
+	matrix operator =(std::vector<std::vector<rational>>);
+
+	std::vector<rational> mult(rational, std::vector<rational>);
+
+	rational& at(size_t r, size_t c);
+
+	std::vector<rational>& row(size_t r);
+	std::vector<rational>& col(size_t c);
+
+	bool empty();
 
 	size_t rows();
 
@@ -37,7 +47,7 @@ public:
 	
 	//matrix gauss();
 
-	//matrix trans();
+	matrix transpose();
 
 };
 

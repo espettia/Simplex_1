@@ -1,8 +1,45 @@
 #include "matrix.h"
 
+matrix::matrix (void) {
+	;
+}
+matrix:: matrix(std::vector<std::vector<rational>> v) {
+	m = v;
+}
 
-matrix::matrix(std::vector<std::vector<rational>> a) {
-	m = a;
+matrix matrix::operator =(matrix m_out) {
+	m = m_out.m;
+	return *this;
+}
+
+matrix matrix::operator =(std::vector<std::vector<rational>> m_out) {
+	m = m_out;
+	return *this;
+}
+
+bool matrix::empty() {
+	return m.empty() ? true : false;
+}
+
+rational& matrix::at(size_t r, size_t c) {
+	if (r >= this->rows() || c >= this->columns())
+		exit(3);
+	return m[r][c];
+}
+
+std::vector<rational>& matrix::row(size_t r) {
+	if (r >= this->rows())
+		exit(3);
+	return m[r];
+}
+std::vector<rational>& matrix::col(size_t c) {
+	if (c >= this->columns())
+		exit(3);
+	std::vector<rational> ans;
+	for (size_t i = 0; i < this->rows(); ++i) {
+		ans.push_back(m[i][c]);
+	}
+	return ans;
 }
 
 std::vector<rational> matrix::mult(rational q,  std::vector<rational> v) {
@@ -23,7 +60,7 @@ size_t matrix::columns() {
 }
 
 matrix matrix::sum_r(size_t r, std::vector<rational> v) {
-	if (r < 0 || r >= v.size())
+	if (r >= v.size() || r >= this->rows())
 		exit(3);
 	for (size_t i = 0; i < this->columns(); ++i)
 	{
@@ -34,7 +71,7 @@ matrix matrix::sum_r(size_t r, std::vector<rational> v) {
 }
 
 matrix matrix::sum_c(size_t c, std::vector<rational> v) {
-	if (c < 0 || c >= v.size())
+	if (c >= v.size() || c >= this->columns())
 		exit(3);
 	for (size_t i = 0; i < this->rows(); ++i) {
 		if (i < v.size())
@@ -44,13 +81,13 @@ matrix matrix::sum_c(size_t c, std::vector<rational> v) {
 }
 
 matrix matrix::piv(size_t r, size_t c) {
-	if (r < 0 || r >= this->rows() || c < 0 || c >= this->columns())
+	if (r >= this->rows() || c >= this->columns())
 		exit(3);
 
 	for (size_t r_i = 0; r_i < this->rows(); ++r_i){
 		if (r_i != r) {
-			rational factor = (m[r_i][c] / m[r][c]) * -1;
-			sum_r(r_i, mult(factor, m[r]));
+			m[r] = mult((rational(1) / m[r][c]), m[r]);
+			sum_r(r_i, mult(m[r_i][c]*-1, m[r]));
 		}
 	}
 	return *this;
@@ -103,4 +140,16 @@ matrix matrix::pop_c() {
 //
 //matrix matrix::gauss() { ; }
 //
-//matrix matrix::trans() { ; }
+matrix matrix::transpose() { 
+
+	std::vector<std::vector<rational>> m1;
+	for (size_t j = 0; j < this->columns(); ++j) {
+		std::vector<rational> tmp;
+		for (size_t i = 0; i < this->rows(); ++i) 
+			tmp.push_back(m[i][j]);
+		m1.push_back(tmp);
+	}
+
+	return m1;
+
+}

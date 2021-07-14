@@ -45,6 +45,10 @@ class rational {
 
         rational operator /(int n);
 
+        bool operator ==(rational q2);
+
+        bool operator !=(rational q2);
+
         bool operator >(rational q2);
 
         bool operator <(rational q2);
@@ -69,6 +73,8 @@ class rational {
         int& num();
 
         int& den();
+
+        void print();
 
 };
 

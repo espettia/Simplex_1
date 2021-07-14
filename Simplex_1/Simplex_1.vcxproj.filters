@@ -27,6 +27,12 @@
     <ClCompile Include="matrix.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="lp_problem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="reader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="rational.h">
@@ -36,6 +42,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="matrix.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lp_problem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="reader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

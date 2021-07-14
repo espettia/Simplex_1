@@ -1,3 +1,4 @@
+#include <iostream>
 #include "rational.h"
 
     rational::rational(int a, int b) {
@@ -95,7 +96,15 @@
     }
 
     int rational::sign() {
-        return sgn(q[0]);
+        return sgn(this->num());
+    }
+
+    bool rational::operator ==(rational q2) {
+        return *this >= q2 && *this <= q2;
+    }
+
+    bool rational::operator !=(rational q2) {
+        return !(*this == q2);
     }
 
     bool rational::operator >(rational q2) {
@@ -138,4 +147,16 @@
 
     int& rational::den() {
         return q[1];
+    }
+
+    void rational::print() {
+        this->simplify();
+        if (this->num() == 0) {
+            std::cout << " ";
+        }
+        else if (this->den() == 1) {
+            std::cout << this->num();
+        }
+        else
+            std::cout << this->num() << "/" << this->den();
     }
