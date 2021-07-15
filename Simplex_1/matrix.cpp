@@ -1,9 +1,9 @@
 #include "matrix.h"
 
-matrix::matrix (void) {
+matrix::matrix(void) {
 	;
 }
-matrix:: matrix(std::vector<std::vector<rational>> v) {
+matrix::matrix(std::vector<std::vector<rational>> v) {
 	m = v;
 }
 
@@ -32,21 +32,48 @@ std::vector<rational>& matrix::row(size_t r) {
 		exit(3);
 	return m[r];
 }
-std::vector<std::reference_wrapper<rational>> matrix::col(size_t c) {
+std::vector<rational> matrix::col(size_t c) {
 	if (c >= this->columns())
 		exit(3);
-	std::vector<std::reference_wrapper<rational>> ans;
+	std::vector<rational> ans;
 	for (size_t i = 0; i < this->rows(); ++i) {
 		ans.push_back(m[i][c]);
 	}
 	return ans;
 }
 
-std::vector<rational> matrix::mult(rational q,  std::vector<rational> v) {
-	std::vector<rational> ans = v;
-	for (auto& i : ans)
-		i = i * q;
-	return ans;
+
+std::vector<rational>& matrix::last_r() {
+	return row(rows() - 1);
+}
+
+std::vector<rational> matrix::last_c() {
+	return col(columns() - 1);
+}
+
+matrix matrix::mult_r(size_t r, rational v) {
+
+	//Check if index is valid
+	if (r >= this->rows())
+		exit(3);
+
+	row(r) = v * row(r);
+
+	return *this;
+}
+
+matrix matrix::mult_c(size_t c, rational v) {
+
+	//Check if index is valid
+	if (c >= columns())
+		exit(3);
+
+	//Multiply c elelemnt rational of every row with ratinoal v
+	for (size_t i = 0; i < rows(); ++i) {
+		m[i][c] = m[i][c] * v;
+	}
+
+	return *this;
 }
 
 size_t matrix::rows() {
@@ -60,34 +87,51 @@ size_t matrix::columns() {
 }
 
 matrix matrix::sum_r(size_t r, std::vector<rational> v) {
-	if (r >= v.size() || r >= this->rows())
+
+	//Check if index is valid
+	if (r >= this->rows())
 		exit(3);
+
+	//Check if vector size is compatible
+	if (v.size() != this->columns())
+		exit(-1);
+
 	for (size_t i = 0; i < this->columns(); ++i)
 	{
-		if(i<v.size())
-			m[r][i] = v[i] + m[r][i];
+		m[r][i] = v[i] + m[r][i];
 	}
 	return *this;
 }
 
 matrix matrix::sum_c(size_t c, std::vector<rational> v) {
-	if (c >= v.size() || c >= this->columns())
+
+	//Check if index is valid
+	if (c >= this->columns())
 		exit(3);
-	for (size_t i = 0; i < this->rows(); ++i) {
-		if (i < v.size())
-			m[i][c] = v[i] + m[i][c];
+
+	//Check if vector size is compatible
+	if (v.size() != this->rows())
+		exit(-1);
+
+	for (size_t i = 0; i < this->rows(); ++i)
+	{
+		m[i][c] = v[i] + m[i][c];
 	}
 	return *this;
 }
 
 matrix matrix::piv(size_t r, size_t c) {
-	if (r >= this->rows() || c >= this->columns())
+	if (r >= rows() || c >= columns())
 		exit(3);
+#ifndef DEBUG
+	if (m[r][c] == 0)
+		std::cout << r << " " << c << std::endl;
+#endif // !DEBUG
 
-	for (size_t r_i = 0; r_i < this->rows(); ++r_i){
+	mult_r(r, rational(1) / m[r][c]);
+	for (size_t r_i = 0; r_i < rows(); ++r_i) {
 		if (r_i != r) {
-			m[r] = mult((rational(1) / m[r][c]), m[r]);
-			sum_r(r_i, mult(m[r_i][c]*-1, m[r]));
+			sum_r(r_i, (m[r_i][c] * -1) * m[r]);
 		}
 	}
 	return *this;
@@ -98,7 +142,7 @@ void matrix::print() {
 		for (auto& c : m[r_i]) {
 			std::cout << c.num() << "/" << c.den() << " ";
 		}
-		std::cout<<std::endl;
+		std::cout << std::endl;
 	}
 	std::cout << std::endl;
 }
@@ -140,12 +184,12 @@ matrix matrix::pop_c() {
 //
 //matrix matrix::gauss() { ; }
 //
-matrix matrix::transpose() { 
+matrix matrix::transpose() {
 
 	std::vector<std::vector<rational>> m1;
 	for (size_t j = 0; j < this->columns(); ++j) {
 		std::vector<rational> tmp;
-		for (size_t i = 0; i < this->rows(); ++i) 
+		for (size_t i = 0; i < this->rows(); ++i)
 			tmp.push_back(m[i][j]);
 		m1.push_back(tmp);
 	}

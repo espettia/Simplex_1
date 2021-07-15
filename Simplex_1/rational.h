@@ -1,80 +1,108 @@
 #include "useful.h"
 #include <iostream>
+#include <vector>
+
 #ifndef RATIONAL
 #define RATIONAL
 
 class rational {
 
-    private:
-        int q[2] = { 1,1};
+private:
+	int q[2] = { 1,1 };
 
-    public:
+public:
 
-        //Constructor
-        rational(int a = 0, int b = 1);
+	//Constructor
+	rational(int a = 0, int b = 1);
 
-        void simplify();
+	void simplify();
 
-        //Access elements
+	//Access elements
 
-        int& operator [](int i);
+	int& operator [](int i);
 
-        //Assignment
+	//Assignment
 
-        rational operator =(rational q2);
+	rational operator =(rational q2);
 
-        rational operator =(int q2);
+	rational operator =(int q2);
 
-        rational operator =(const char *s);
+	rational operator =(const char* s);
 
-        //Basic Arithmetic
+	//Basic Arithmetic
 
-        rational operator +(rational q2);
+	rational operator +(rational q2);
 
-        rational operator +(int n);
+	rational operator +(int n);
 
-        rational operator -(rational q2);
+	std::vector<rational> operator +(std::vector<rational>);
 
-        rational operator -(int n);
+	rational operator -(rational q2);
 
-        rational operator *(rational q2);
+	rational operator -(int n);
 
-        rational operator *(int n);
+	rational operator *(rational q2);
 
-        rational operator /(rational q2);
+	rational operator *(int n);
 
-        rational operator /(int n);
+	std::vector<rational> operator *(std::vector<rational>);
 
-        bool operator ==(rational q2);
+	rational operator /(rational q2);
 
-        bool operator !=(rational q2);
-
-        bool operator >(rational q2);
-
-        bool operator <(rational q2);
-
-        bool operator >=(rational q2);
-
-        bool operator <= (rational q2);
-
-        int sign();
+	rational operator /(int n);
 
 
-        //Useful functions
+	template <typename T>
+	T operator +=(T x) {
+		return *this + x;
+	}
 
-        double dec();
+	template <typename T>
+	T operator -=(T x) {
+		return *this - x;
+	}
 
-        int floor();
+	template <typename T>
+	T operator /=(T x) {
+		return *this / x;
+	}
 
-        rational frac();
+	template <typename T>
+	T operator *=(T x) {
+		return *this * x;
+	}
 
-        int ceil();
+	bool operator ==(rational q2);
 
-        int& num();
+	bool operator !=(rational q2);
 
-        int& den();
+	bool operator >(rational q2);
 
-        void print(int z = 0);
+	bool operator <(rational q2);
+
+	bool operator >=(rational q2);
+
+	bool operator <= (rational q2);
+
+	int sign();
+
+	//Useful functions
+
+	double dec();
+
+	int floor();
+
+	rational frac();
+
+	int ceil();
+
+	int& num();
+
+	int& den();
+
+	void print(int z = 0);
+
+
 
 };
 
