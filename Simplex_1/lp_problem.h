@@ -1,6 +1,9 @@
 #pragma once
 #include <iostream>
+#include <cassert>
 #include <vector>
+#include <iomanip>
+#include <string>
 #include "rational.h"
 #include "matrix.h"
 
@@ -12,6 +15,7 @@ private:
 	//Second vector containts the comparisons in the constraints, whether they are >= = <= < >
 	//third value especifies whether the function is required to be maxed or minimized
 	matrix m;
+	
 	std::vector<int> op;
 	//need to be included in constructors
 	std::vector<rational> saved_objective_function;
@@ -36,45 +40,53 @@ private:
 	size_t constraints = 0;
 	size_t variables = 0;
 
-
-public:
-	lp_problem(matrix m_out, std::vector<int> op_out, int type_out = 0, int obj_out = 0, int integer_out = 0, int init_out = 0, int col_out = 0, int row_out = 0, int std = 0, int fin = 0, int nosol = 0, int sol = 0, int noadm = 0, int w = 0, size_t constraints_out = 0, size_t variables_out = 0);
-	lp_problem();
-	lp_problem operator=(lp_problem);
-
-	std::vector<rational>& objective_function();
 	void save_objective_function();
 	void restore_objective_function();
-	std::vector<rational> constant_terms();
 	void save_constant_terms();
 	void restore_constant_terms();
 
-	std::vector<int> basic_var();
+	//bool check_dual_solved();
+	//bool check_dual_unbounded();
+	//bool check_dual_finished();
 
-	bool is_canonical(std::vector<rational>);
-	//void check_status(int operation);
-	bool check_dual_simplex();
 	bool check_solved();
 	bool check_unbounded();
 	bool check_finished();
 	int check_w_valid();
-	bool init();
+
+	std::vector<size_t> simplex_find_pivot();
+	std::vector<int> basic_var();
+
+public:
+
+	lp_problem(matrix m_out, std::vector<int> op_out, int type_out = 0, int obj_out = 0, int integer_out = 0, int init_out = 0, int col_out = 0, int row_out = 0, int std = 0, int fin = 0, int nosol = 0, int sol = 0, int noadm = 0, int w = 0, size_t constraints_out = 0, size_t variables_out = 0);
+	lp_problem();
+
+	std::vector<rational>& objective_function();
+	std::vector<rational> constant_terms();
+
+	void mult_eq(size_t i, rational q);
+
+	lp_problem init();
 
 	lp_problem to_min_obj();
+	lp_problem to_max_obj();
 
 	lp_problem to_min_problem();
+	lp_problem to_max_problem();
+
 	lp_problem add_slack_variables();
-	lp_problem make_coefficients_positive();
+	lp_problem make_constants_positive();
 	lp_problem add_artificial_variables();
 	lp_problem solve();
-	std::vector<size_t> simplex_find_pivot();
 	/*int solve_dual();*/
 	lp_problem remove_artificial_variables();
 	lp_problem standard();
 
-	lp_problem to_max_problem();
 	lp_problem dual();
 	std::vector<rational> solution();
+
+	lp_problem simplex();
 
 	void print_op(size_t i);
 	void print();

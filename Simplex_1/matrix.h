@@ -65,7 +65,7 @@ public:
 	//Push a vector at the bottom
 	matrix push_r(std::vector<rational>);
 
-	//Push a vector at the right
+	//Add column to the right
 	matrix push_c(std::vector<rational>);
 
 	//Remove last row
@@ -82,4 +82,7 @@ public:
 	matrix transpose();
 
 };
+
+//Checki f given vector is a canonical vector
+bool is_canonical(std::vector<rational> v);
 

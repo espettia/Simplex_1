@@ -197,3 +197,14 @@ matrix matrix::transpose() {
 	return m1;
 
 }
+
+bool is_canonical(std::vector<rational> v){
+		int flag = 0;
+		for (size_t i = 0; i < v.size(); ++i) {
+			if (v[i] != 0) {
+				if (v[i] == 1 && flag == 0) flag = 1;
+				else return 0;
+			}
+		}
+		return 1;
+}

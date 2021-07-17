@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 #include "rational.h"
 
 rational::rational(int a, int b) {
@@ -169,6 +170,33 @@ int& rational::num() {
 
 int& rational::den() {
 	return q[1];
+}
+
+std::string rational::str(int option) {
+	//options:
+	//0 -> no positive sign, empty space when zero
+	//1 -> zero
+	//2 -> postiive sign
+	//3 -> zero and positive sign
+	std::string ans;
+	simplify();
+	if (*this == 0) {
+		if (option & 0x01)
+			ans.append("0");
+	}
+	else {
+		if (option & 0x10) {
+			if (*this > 0) {
+				ans.append("+");
+			}
+		}
+		ans.append(std::to_string(q[0]));
+		if (q[1] != 1)
+			ans.append("/" + std::to_string(q[1]));
+	}
+
+	return ans;
+
 }
 
 void rational::print(int z) {

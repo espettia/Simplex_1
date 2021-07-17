@@ -152,6 +152,7 @@
     <ClInclude Include="matrix.h" />
     <ClInclude Include="rational.h" />
     <ClInclude Include="reader.h" />
+    <ClInclude Include="simplex.h" />
     <ClInclude Include="useful.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

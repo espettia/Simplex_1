@@ -100,9 +100,9 @@ public:
 
 	int& den();
 
+	std::string str(int option = 0);
+
 	void print(int z = 0);
-
-
 
 };
 
