@@ -1,32 +1,29 @@
 #pragma once
 #include <iostream>
 #include <vector>
-#include <functional>
+#include <cassert>
 #include "rational.h"
 
 class matrix
 {
-private:
+
+	friend class matrix_vector;
+
+protected:
 
 	std::vector<std::vector<rational>> m = { {rational(0)} };
+	size_t rows_in;
+	size_t cols_in;
 
 public:
 
-	matrix(void);
-	matrix(std::vector<std::vector<rational>>);
-	matrix operator =(matrix m_out);
-	matrix operator =(std::vector<std::vector<rational>>);
+	class matrix_vector;
 
 	//////////////////////////////////////ACCESS MATRIX ELEMENTS, RWOS AND COLUMNS
 
 	rational& at(size_t r, size_t c);
 
-	std::vector<rational>& row(size_t r);
-
-	std::vector<rational> col(size_t c);
-
-
-	/////////////////////////////////////PROPERTIES OF MATRIX
+	/////////////////////////////////////PROPERTIES OF matrix
 
 	bool empty();
 
@@ -36,15 +33,55 @@ public:
 	//Number of columns of matrix
 	size_t columns();
 
-	//To access last row
-	std::vector<rational>& last_r();
+	//Print matrix
+	void print();
 
-	//To access last column;
-	std::vector<rational> last_c();
+	/////////////////////////////////////////////////////////
+	//MATRIX VECTOR
+	class matrix_vector
+	{
 
-	/////////////////////////////////////METHODS THAT AFFECT THE MATRIX
+	private:
 
-	//Sum a row with another row vector
+		std::vector<std::vector<rational>>& m;
+		bool r_c;
+		size_t pos;
+
+	public:
+
+		matrix_vector(matrix& m_out, bool r_c_out, size_t i);
+
+		rational& operator [](int i);
+		size_t size() const;
+		matrix_vector& operator = (const matrix_vector&);
+		matrix_vector& operator = (const std::vector<rational>&);
+		const rational& operator [](int i) const;
+		rational& front();
+		rational& back();
+		std::vector<rational> vector() const;
+		void print();
+	};
+
+	std::vector<matrix_vector> matrix_vector_rows = { matrix_vector(*this, 0, 0) };
+	std::vector<matrix_vector> matrix_vector_columns = { matrix_vector(*this, 1, 0) };
+
+	/////////////////////////////////////////////////////////////////////////
+
+	matrix(void);
+	matrix(std::vector<std::vector<rational>>);
+	matrix operator =(matrix m_out);
+	matrix operator =(std::vector<std::vector<rational>>);
+
+	matrix_vector row(int i);
+
+	matrix_vector col(int j);
+	matrix_vector last_r();
+
+	matrix_vector last_c();
+
+	/////////////////////////////////////METHODS THAT AFFECT THE matrix
+
+//Sum a row with another row vector
 	matrix sum_r(size_t r, std::vector<rational>);
 
 	//Sum a column with a vector
@@ -58,9 +95,6 @@ public:
 
 	//Pivot around a point
 	matrix piv(size_t r, size_t c);
-
-	//Print matrix
-	void print();
 
 	//Push a vector at the bottom
 	matrix push_r(std::vector<rational>);
@@ -76,13 +110,14 @@ public:
 
 	//matrix gauss();
 
-	///////////////////////////////////THIS METHOD DOES NOT CHANGE THE MATRIX
+	///////////////////////////////////THIS METHOD DOES NOT CHANGE THE matrix
 
 	//Return transposed matrix
 	matrix transpose();
+
+	//ADDITIONAL FUNCIONS
 
 };
 
 //Checki f given vector is a canonical vector
 bool is_canonical(std::vector<rational> v);
-

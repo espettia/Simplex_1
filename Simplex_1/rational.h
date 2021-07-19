@@ -51,24 +51,23 @@ public:
 
 	rational operator /(int n);
 
-
 	template <typename T>
-	T operator +=(T x) {
-		return *this + x;
+	rational operator +=(T x) {
+		return *this = *this + x;
 	}
 
 	template <typename T>
-	T operator -=(T x) {
-		return *this - x;
+	rational operator -=(T x) {
+		return *this = *this - x;
 	}
 
 	template <typename T>
-	T operator /=(T x) {
-		return *this / x;
+	rational operator /=(T x) {
+		return *this = *this / x;
 	}
 
 	template <typename T>
-	T operator *=(T x) {
+	rational operator *=(T x) {
 		return *this * x;
 	}
 

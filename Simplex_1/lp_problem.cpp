@@ -26,11 +26,7 @@ lp_problem::lp_problem(matrix m_out, std::vector<int> op_out, int type_out, int 
 
 }
 
-lp_problem::lp_problem() {
-	st_init = 0;
-}
-
-std::vector<rational>& lp_problem::objective_function() {
+matrix::matrix_vector lp_problem::objective_function() {
 
 	if (!st_init)
 	{
@@ -45,7 +41,7 @@ void lp_problem::save_objective_function() {
 
 	assert(!st_saved_objective_function);
 
-	saved_objective_function = objective_function();
+	saved_objective_function = objective_function().vector();
 	st_saved_objective_function = 1;
 	m.pop_r();
 }
@@ -58,7 +54,7 @@ void lp_problem::restore_objective_function() {
 	st_saved_objective_function = 0;
 }
 
-std::vector<rational> lp_problem::constant_terms() {
+matrix::matrix_vector lp_problem::constant_terms() {
 
 	assert(!st_saved_constant_terms);
 
@@ -75,7 +71,7 @@ void lp_problem::save_constant_terms() {
 
 	assert(!st_saved_constant_terms);
 
-	saved_constant_terms = m.last_c();
+	saved_constant_terms = m.last_c().vector();
 	st_saved_constant_terms = 1;
 	m.pop_c();
 }
@@ -110,7 +106,7 @@ std::vector<int> lp_problem::basic_var() {
 
 	for (size_t i = 0; i < constraints; ++i) {
 		for (size_t j = 0; j < variables; ++j) {
-			if (m.at(i, j) == 1 && is_canonical(m.col(j))) {
+			if (m.at(i, j) == 1 && is_canonical(m.col(j).vector())) {
 				basic[i] = j; break;
 			}
 		}
@@ -209,7 +205,7 @@ lp_problem lp_problem::to_min_obj() {
 	}
 	//Multiply objctive function by -1 if it is a max problem
 	if (max_obj) {
-		objective_function() = rational(-1) * objective_function();
+		objective_function() = rational(-1) * objective_function().vector();
 		max_obj = 0;
 	}
 	return *this;
@@ -222,7 +218,7 @@ lp_problem lp_problem::to_max_obj() {
 	}
 	//Multiply objctive function by -1 if it is a max problem
 	if (!max_obj) {
-		objective_function() = rational(-1) * objective_function();
+		objective_function() = rational(-1) * objective_function().vector();
 		max_obj = 0;
 	}
 	return *this;
@@ -247,7 +243,7 @@ lp_problem lp_problem::to_min_problem() {
 
 			//Create <= at the bottom
 			op.push_back(1);//1 stands for <=
-			m.push_r(m.row(i));
+			m.push_r(m.row(i).vector());
 			++constraints;
 			basic.push_back(-1);
 
@@ -292,7 +288,7 @@ lp_problem lp_problem::add_slack_variables() {
 
 lp_problem lp_problem::make_constants_positive() {
 
-	std::vector<rational> temp_constants = constant_terms();
+	std::vector<rational> temp_constants = constant_terms().vector();
 
 	//Last equation is the objective function
 	for (size_t i = 0; i < constraints; ++i) {
@@ -538,7 +534,7 @@ lp_problem lp_problem::solve() {
 		std::vector<int> basic_map(variables, 0);
 		size_t valid_basic_variables = 0;
 		for (size_t j = 0; j < variables; ++j) {
-			if (is_canonical(m.col(j))) {
+			if (is_canonical(m.col(j).vector())) {
 				basic_map[j] = 1;
 				if (j < variables - artificial_variables) ++valid_basic_variables;
 			}
@@ -602,7 +598,7 @@ lp_problem lp_problem::solve() {
 #endif // !NDEBUG
 
 				save_objective_function();
-				std::vector<rational> z_function = m.last_r();
+				std::vector<rational> z_function = m.last_r().vector();
 				m.pop_r();
 				for (size_t i = 0; i < missing_basic_variables; ++i) {
 					m.pop_r();
@@ -653,7 +649,7 @@ lp_problem lp_problem::to_max_problem() {
 
 			//Create => at the bottom
 			op.push_back(GEQ);//1 stands for =>
-			m.push_r(m.row(i));
+			m.push_r(m.row(i).vector());
 			++constraints;
 			basic.push_back(-1);
 
@@ -689,7 +685,7 @@ lp_problem lp_problem::dual() {
 
 	p1.op = std::vector<int>(p1.m.rows() - 1, GEQ);
 
-	int temp_constraints = p1.constraints;
+	size_t temp_constraints = p1.constraints;
 	p1.constraints = p1.variables;
 	p1.variables = temp_constraints;
 	p1.max_obj = 0;
@@ -739,7 +735,7 @@ std::vector<rational> lp_problem::solution() {
 	std::cout << "LP-Problem has an optimal solution at (";
 
 	std::vector<rational> sol(init_col - 1, 0);
-	std::vector<rational> constants = constant_terms();
+	std::vector<rational> constants = constant_terms().vector();
 
 	//FIND VALUES OF SOLUTION
 	//ASUMMING ALL EQUATIONS HAVE VALID BASIC VARIABLES
@@ -781,7 +777,7 @@ void lp_problem::print() {
 		size_t last = m.columns() - 1;
 
 		//Print objective function
-		std::vector<rational> function = objective_function();
+		std::vector<rational> function = objective_function().vector();
 		std::cout << (max_obj ? "Maximize  " : "Minimize  ");
 		int flag = 0;
 		for (size_t c = 0; c < last; ++c) {

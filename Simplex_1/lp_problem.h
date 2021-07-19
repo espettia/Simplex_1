@@ -60,10 +60,9 @@ private:
 public:
 
 	lp_problem(matrix m_out, std::vector<int> op_out, int type_out = 0, int obj_out = 0, int integer_out = 0, int init_out = 0, int col_out = 0, int row_out = 0, int std = 0, int fin = 0, int nosol = 0, int sol = 0, int noadm = 0, int w = 0, size_t constraints_out = 0, size_t variables_out = 0);
-	lp_problem();
 
-	std::vector<rational>& objective_function();
-	std::vector<rational> constant_terms();
+	matrix::matrix_vector objective_function();
+	matrix::matrix_vector constant_terms();
 
 	void mult_eq(size_t i, rational q);
 
