@@ -54,39 +54,38 @@ private:
 	bool check_finished();
 	int check_w_valid();
 
-	std::vector<size_t> simplex_find_pivot();
-	std::vector<int> basic_var();
+	std::vector<size_t> simplex_find_pivot() const;
+	std::vector<int> basic_var() ;
 
 public:
 
 	lp_problem(matrix m_out, std::vector<int> op_out, int type_out = 0, int obj_out = 0, int integer_out = 0, int init_out = 0, int col_out = 0, int row_out = 0, int std = 0, int fin = 0, int nosol = 0, int sol = 0, int noadm = 0, int w = 0, size_t constraints_out = 0, size_t variables_out = 0);
-	lp_problem();
 
-	std::vector<rational>& objective_function();
-	std::vector<rational> constant_terms();
+	matrix::matrix_vector objective_function() const;
+	matrix::matrix_vector constant_terms() const;
 
 	void mult_eq(size_t i, rational q);
 
-	lp_problem init();
+	lp_problem& init();
 
-	lp_problem to_min_obj();
-	lp_problem to_max_obj();
+	lp_problem& to_min_obj();
+	lp_problem& to_max_obj();
 
-	lp_problem to_min_problem();
-	lp_problem to_max_problem();
+	lp_problem& to_min_problem();
+	lp_problem& to_max_problem();
 
-	lp_problem add_slack_variables();
-	lp_problem make_constants_positive();
-	lp_problem add_artificial_variables();
-	lp_problem solve();
+	lp_problem& add_slack_variables();
+	lp_problem& make_constants_positive();
+	lp_problem& add_artificial_variables();
+	lp_problem& solve();
 	/*int solve_dual();*/
-	lp_problem remove_artificial_variables();
-	lp_problem standard();
+	lp_problem& remove_artificial_variables();
+	lp_problem& standard();
 
 	lp_problem dual();
 	std::vector<rational> solution();
 
-	lp_problem simplex();
+	lp_problem& simplex();
 
 	void print_op(size_t i);
 	void print();

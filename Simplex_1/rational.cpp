@@ -2,174 +2,139 @@
 #include <string>
 #include "rational.h"
 
-rational::rational(int a, int b) {
-	q[0] = abs(a) * sgn(a * b);
-	q[1] = abs(b);
+rational::rational(int a, int b) 
+:numerator(abs(a)* sgn(a* b)), denominator(denominator = abs(b))
+{
+	if (denominator == 0) {
+		std::cout << "Divison by zero";
+		exit(4);
+	}
+	simplify();
 }
 
 void rational::simplify() {
-	int div = gcd(q[0], q[1]);
-	q[0] = q[0] / div;
-	q[1] = q[1] / div;
-}
-
-//Access elements
-
-int& rational::operator [](int i) {
-	if (i > 2 || i < 0) {
-		exit(5);
-	}
-	else
-		return q[i];
-}
-
-//Assignment
-
-rational rational::operator =(rational q2) {
-	q[0] = q2[0];
-	q[1] = q2[1];
-	this->simplify();
-	return *this;
-}
-
-rational rational::operator =(int n) {
-	q[0] = n;
-	q[1] = 1;
-	this->simplify();
-	return *this;
-}
-
-rational rational::operator =(const char* s) {
-	sscanf_s(s, "%d/%d", &q[0], &q[1]);
-	return *this;
+	int div = gcd(numerator, denominator);
+	numerator = numerator / div;
+	denominator = denominator / div;
 }
 
 //Basic Arithmetic
 
-rational rational::operator +(rational q2) {
-	int den = q[1] * q2[1];
-	int num = (q[0] * q2[1] + q[1] * q2[0]);
+rational rational::operator +(const rational& q2) const {
+	int den = denominator * q2.denominator;
+	int num = (numerator * q2.denominator + denominator * q2.numerator);
 	rational ans(num, den);
 	return ans;
 }
 
-rational rational::operator +(int n) {
-	rational q2 = rational(n);
-	return *this + q2;
-}
-
-
-std::vector<rational> rational::operator +(std::vector<rational> v) {
+std::vector<rational> rational::operator +(const std::vector<rational>& v) const {
 	std::vector<rational> ans = v;
 	for (auto& i : ans)
 		i = *this + i;
 	return ans;
 }
 
-rational rational::operator -(rational q2) {
-	q2[0] *= -1;
-	return *this + q2;
+rational rational::operator -(const rational& q2) const{
+	return *this + q2 * -1;
 }
 
-rational rational::operator -(int n) {
-	rational q2 = rational(n);
-	return *this - q2;
+std::vector<rational> rational::operator -(const std::vector<rational>& v) const {
+	std::vector<rational> ans = v;
+	for (auto& i : ans)
+		i = *this - i;
+	return ans;
 }
 
-rational rational::operator *(rational q2) {
-	int den = q[1] * q2[1];
-	int num = q[0] * q2[0];
+rational rational::operator *(const rational& q2) const{
+	int den = denominator * q2.denominator;
+	int num = numerator * q2.numerator;
 	rational ans(num, den);
 	return ans;
 }
 
-rational rational::operator *(int n) {
-	rational q2(n);
-	return *this * q2;
-}
-
-std::vector<rational> rational::operator *(std::vector<rational> v) {
+std::vector<rational> rational::operator *(const std::vector<rational>& v) const {
 	std::vector<rational> ans = v;
 	for (auto& i : ans)
 		i = *this * i;
 	return ans;
 }
 
-rational rational::operator /(rational q2) {
+rational rational::operator /(const rational& q2) const{
 	if (q2.num() == 0) {
 		std::cout << "Divison by zero";
 		exit(4);
 	}
-	rational q2_inv(q2[1], q2[0]);
+	rational q2_inv(q2.denominator, q2.numerator);
 	return *this * q2_inv;
 }
 
-rational rational::operator /(int n) {
-
-	if (n == 0) {
-		std::cout << "Divison by zero";
-		exit(4);
-	}
-	rational q2(n);
-	rational q2_inv(q[1], q[0]);
-	return *this * q2_inv;
+std::vector<rational> rational::operator /(const std::vector<rational>& v) const {
+	std::vector<rational> ans = v;
+	for (auto& i : ans)
+		i = *this / i;
+	return ans;
 }
 
-
-int rational::sign() {
-	return sgn(this->num());
+int rational::sign() const {
+	return sgn(numerator);
 }
 
-
-
-bool rational::operator ==(rational q2) {
+bool rational::operator ==(const rational& q2) const {
 	return *this >= q2 && *this <= q2;
 }
 
-bool rational::operator !=(rational q2) {
+bool rational::operator !=(const rational& q2) const {
 	return !(*this == q2);
 }
 
-bool rational::operator >(rational q2) {
+bool rational::operator >(const rational& q2) const {
 	return !(*this <= q2);
 }
 
-bool rational::operator <(rational q2) {
+bool rational::operator <(const rational& q2)const {
 	return !(*this >= q2);
 }
 
-bool rational::operator >=(rational q2) {
+bool rational::operator >=(const rational& q2) const {
 	return (*this - q2).sign() >= 0 ? true : false;
 }
 
-bool rational::operator <= (rational q2) {
+bool rational::operator <=(const rational& q2) const {
 	return (*this - q2).sign() <= 0 ? true : false;
 }
 
 
-double rational::dec() {
-	return 1.0 * q[0] / q[1];
+double rational::dec() const {
+	return 1.0 * numerator / denominator;
 }
 
-int rational::floor() {
+int rational::floor() const{
 
-	return  (q[0] > 0) ? (q[0] / q[1]) : (q[0] - 1) / q[1] - 1;
+	return  (numerator > 0) ? (numerator / denominator) : (numerator - 1) / denominator - 1;
 }
 
-rational rational::frac() {
+rational rational::frac() const{
 	return *this - this->floor();
 }
 
-int rational::ceil() {
-	return  (q[0] > 0) ? 1 + (q[0] - 1) / q[1] : (q[0] / q[1]);
+int rational::ceil() const{
+	return  (numerator > 0) ? 1 + (numerator - 1) / denominator : (numerator / denominator);
 }
 
 int& rational::num() {
-	return q[0];
+	return numerator;
+}
+
+const int& rational::num() const {
+	return numerator;
 }
 
 int& rational::den() {
-	return q[1];
+	return denominator;
+}
+
+const int& rational::den() const{
+	return denominator;
 }
 
 std::string rational::str(int option) {
@@ -190,16 +155,15 @@ std::string rational::str(int option) {
 				ans.append("+");
 			}
 		}
-		ans.append(std::to_string(q[0]));
-		if (q[1] != 1)
-			ans.append("/" + std::to_string(q[1]));
+		ans.append(std::to_string(numerator));
+		if (denominator != 1)
+			ans.append("/" + std::to_string(denominator));
 	}
-
 	return ans;
-
 }
 
-void rational::print(int z) {
+void rational::print(int z){
+	
 	this->simplify();
 	if (this->num() == 0) {
 		if (z) std::cout << "0";
@@ -211,4 +175,12 @@ void rational::print(int z) {
 	}
 	else
 		std::cout << this->num() << "/" << this->den();
+}
+
+std::ostream& operator<<(std::ostream& os, rational q1) {
+	q1.simplify();
+	os << q1.num();
+	if (q1.num() != 0)
+		os <<"/" << q1.den();
+	return os;
 }
