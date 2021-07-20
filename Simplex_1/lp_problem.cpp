@@ -26,7 +26,7 @@ lp_problem::lp_problem(matrix m_out, std::vector<int> op_out, int type_out, int 
 
 }
 
-matrix::matrix_vector lp_problem::objective_function() {
+matrix::matrix_vector lp_problem::objective_function() const {
 
 	if (!st_init)
 	{
@@ -54,7 +54,7 @@ void lp_problem::restore_objective_function() {
 	st_saved_objective_function = 0;
 }
 
-matrix::matrix_vector lp_problem::constant_terms() {
+matrix::matrix_vector lp_problem::constant_terms() const{
 
 	assert(!st_saved_constant_terms);
 
@@ -115,7 +115,7 @@ std::vector<int> lp_problem::basic_var() {
 	return basic;
 }
 
-lp_problem lp_problem::init() {
+lp_problem& lp_problem::init(){
 #ifndef NDEBUG
 	std::cout << "init()" << std::endl;
 #endif // !NDEBUG
@@ -198,7 +198,7 @@ int lp_problem::check_w_valid() {
 	return valid_basic_variables_counter;
 }
 
-lp_problem lp_problem::to_min_obj() {
+lp_problem& lp_problem::to_min_obj() {
 	if (!st_init) {
 		std::cout << "Problem need to be initialized" << std::endl;
 		exit(11);
@@ -211,7 +211,7 @@ lp_problem lp_problem::to_min_obj() {
 	return *this;
 }
 
-lp_problem lp_problem::to_max_obj() {
+lp_problem& lp_problem::to_max_obj() {
 	if (!st_init) {
 		std::cout << "Problem need to be initialized" << std::endl;
 		exit(11);
@@ -224,7 +224,7 @@ lp_problem lp_problem::to_max_obj() {
 	return *this;
 }
 
-lp_problem lp_problem::to_min_problem() {
+lp_problem& lp_problem::to_min_problem() {
 
 	if (!st_init) {
 		std::cout << "Problem need to be initialized" << std::endl;
@@ -260,7 +260,7 @@ lp_problem lp_problem::to_min_problem() {
 	return *this;
 }
 
-lp_problem lp_problem::add_slack_variables() {
+lp_problem& lp_problem::add_slack_variables() {
 
 	save_constant_terms();
 
@@ -286,7 +286,7 @@ lp_problem lp_problem::add_slack_variables() {
 	return *this;
 }
 
-lp_problem lp_problem::make_constants_positive() {
+lp_problem& lp_problem::make_constants_positive() {
 
 	std::vector<rational> temp_constants = constant_terms().vector();
 
@@ -299,7 +299,7 @@ lp_problem lp_problem::make_constants_positive() {
 	return *this;
 }
 
-lp_problem lp_problem::add_artificial_variables() {
+lp_problem& lp_problem::add_artificial_variables() {
 
 	//Store constant terms to add variables to the right
 	save_constant_terms();
@@ -334,7 +334,7 @@ lp_problem lp_problem::add_artificial_variables() {
 	return *this;
 }
 
-lp_problem lp_problem::remove_artificial_variables() {
+lp_problem& lp_problem::remove_artificial_variables() {
 
 	assert(st_w);
 
@@ -360,7 +360,7 @@ lp_problem lp_problem::remove_artificial_variables() {
 	return *this;
 }
 
-lp_problem lp_problem::standard() {
+lp_problem& lp_problem::standard() {
 #ifndef NDEBUG
 	std::cout << "standard()" << std::endl;
 #endif // !NDEBUG
@@ -411,7 +411,7 @@ lp_problem lp_problem::standard() {
 	std::cout << "Proceeding to solve W-problem to find canonical form" << std::endl;
 	print();
 #endif // !NDEBUG
-
+	m.row(m.rows() - 1).print();
 	//PERFORM OPERATIONS
 	solve();
 
@@ -436,7 +436,7 @@ lp_problem lp_problem::standard() {
 	return *this;
 }
 
-std::vector<size_t> lp_problem::simplex_find_pivot() {
+std::vector<size_t> lp_problem::simplex_find_pivot() const{
 
 	rational ck_gr;
 	rational ck;
@@ -489,7 +489,7 @@ std::vector<size_t> lp_problem::simplex_find_pivot() {
 	return pivot;
 }
 
-lp_problem lp_problem::solve() {
+lp_problem& lp_problem::solve() {
 
 #ifndef NDEBUG
 	std::cout << "solve()" << std::endl;
@@ -516,6 +516,7 @@ lp_problem lp_problem::solve() {
 
 #ifndef NDEBUG
 		print();
+
 #endif // NDEBUG
 	}
 
@@ -576,6 +577,7 @@ lp_problem lp_problem::solve() {
 							m.piv(i, j);
 #ifndef NDEBUG
 							print();
+
 #endif // NDEBUG
 							basic[i] = (int)j;
 							basic_map[j] = 1;
@@ -596,8 +598,8 @@ lp_problem lp_problem::solve() {
 #ifndef NDEBUG
 				std::cout << "REMOVING REDUNDANT EQUATIONS"<< std::endl;
 #endif // !NDEBUG
-
 				save_objective_function();
+				m.row(3).print();
 				std::vector<rational> z_function = m.last_r().vector();
 				m.pop_r();
 				for (size_t i = 0; i < missing_basic_variables; ++i) {
@@ -629,7 +631,7 @@ lp_problem lp_problem::solve() {
 	return *this;
 }
 
-lp_problem lp_problem::to_max_problem() {
+lp_problem& lp_problem::to_max_problem() {
 
 	if (!st_init) {
 		std::cout << "Problem need to be initialized" << std::endl;
@@ -704,7 +706,7 @@ lp_problem lp_problem::dual() {
 	return p1;
 }
 
-lp_problem lp_problem::simplex() {
+lp_problem& lp_problem::simplex() {
 
 	assert(st_init);
 

@@ -1,36 +1,44 @@
 #include "matrix.h"
 
-bool matrix::empty() {
+bool matrix::empty() const{
 	return m.empty();
 }
 
 rational& matrix::at(size_t r, size_t c) {
-	if (r >= this->rows() || c >= this->columns()) {
+	if (r >= rows_in || c >= cols_in) {
 		std::cout << "Out of bound" << std::endl;
 		exit(1);
 	}
 	return m[r][c];
 }
 
-size_t matrix::rows() {
+const rational& matrix::at(size_t r, size_t c) const {
+	if (r >= rows_in || c >= cols_in) {
+		std::cout << "Out of bound" << std::endl;
+		exit(1);
+	}
+	return m[r][c];
+}
+
+size_t matrix::rows() const{
 	return rows_in;
 }
 
-size_t matrix::columns() {
+size_t matrix::columns() const{
 	return cols_in;
 }
 
 void matrix::print() {
-	for (size_t r_i = 0; r_i < this->rows(); ++r_i) {
+	for (size_t r_i = 0; r_i < rows_in; ++r_i) {
 		for (auto& c : m[r_i]) {
-			std::cout << c.num() << "/" << c.den() << " ";
+			std::cout << c << " ";
 		}
 		std::cout << std::endl;
 	}
 	std::cout << std::endl;
 }
 
-bool is_canonical(std::vector<rational> v) {
+bool is_canonical(const std::vector<rational>& v) {
 	int flag = 0;
 	for (size_t i = 0; i < v.size(); ++i) {
 		if (v[i] != 0) {
@@ -45,7 +53,7 @@ bool is_canonical(std::vector<rational> v) {
 
 
 matrix::matrix_vector::matrix_vector(matrix& m_out, bool r_c_out, size_t pos_out) :
-	m(m_out.m), r_c(r_c_out), pos(pos_out)
+	m(m_out), r_c(r_c_out), pos(pos_out)
 {
 	if (r_c_out == 0 && pos > m_out.rows_in) {
 		std::cout << "Out of bound";
@@ -95,7 +103,7 @@ rational& matrix::matrix_vector::back() {
 
 void matrix::matrix_vector::print() {
 	for (size_t i = 0; i < this->size(); ++i)
-		std::cout << this->operator[](i).str(0x01) << " ";
+		std::cout << this->operator[](i) << " ";
 	std::cout << std::endl;
 }
 
@@ -113,35 +121,61 @@ rational& matrix::matrix_vector::operator [](int i) {
 		exit(1);
 	}
 	if (r_c == 0)
-		return i >= 0 ? m[pos][i] : m[pos][m[0].size() + i];
+		return i >= 0 ? m.m[pos][i] : m.m[pos][m.cols_in + i];
 	else
-		return i >= 0 ? m[i][pos] : m[m.size() + i][pos];
+		return i >= 0 ? m.m[i][pos] : m.m[m.rows_in + i][pos];
 }
 
 const rational& matrix::matrix_vector::operator [](int i) const {
 
-	if (i > this->size()) {
+	if (i >= this->size()) {
 		std::cout << "Out of bound";
 		exit(1);
 	}
 	if (r_c == 0)
-		return i >= 0 ? m[pos][i] : m[pos][m[0].size() + i];
+		return i >= 0 ? m.m[pos][i] : m.m[pos][m.cols_in + i];
 	else
-		return i >= 0 ? m[i][pos] : m[m.size() + i][pos];
+		return i >= 0 ? m.m[i][pos] : m.m[m.rows_in + i][pos];
 }
 
 size_t matrix::matrix_vector::size() const {
 	if (r_c == 0)
-		return m[0].size();
+		return m.cols_in;
 	else
-		return m.size();
+		return m.rows_in;
 }
 
 
 //----------------------------------------
 
-matrix::matrix(void) { ; }
-matrix::matrix(std::vector<std::vector<rational>> v) {
+
+
+std::vector<matrix::matrix_vector>& matrix::indicator_set_size(std::vector<matrix::matrix_vector>& v, int n) {
+	return v;
+}
+std::vector<matrix::matrix_vector>& matrix::indicator_increment(std::vector<matrix::matrix_vector>& v) {
+	return v;
+}
+std::vector<matrix::matrix_vector>& matrix::indicator_decrement(std::vector<matrix::matrix_vector>& v) {
+	return v;
+}
+
+
+
+matrix::matrix(void) { 
+	rows_in = 1;
+	cols_in = 1;
+	matrix_vector_rows = { matrix_vector(*this, 0, 0) };
+	matrix_vector_columns = { matrix_vector(*this, 1, 0) };
+}
+
+matrix::matrix(const matrix& m_out):matrix(m_out.m) { }
+
+matrix::matrix(const std::vector<std::vector<rational>>& v) {
+	rows_in = 1;
+	cols_in = 1;
+	matrix_vector_rows = { matrix_vector(*this, 0, 0) };
+	matrix_vector_columns = { matrix_vector(*this, 1, 0) };
 	//If empty, matrix = { {0} }
 	//if { {} }, matrix = {{0}}
 	if (!v.empty()) {
@@ -168,31 +202,35 @@ matrix::matrix(std::vector<std::vector<rational>> v) {
 	}
 }
 
-matrix matrix::operator =(matrix m_out) {
-	m = m_out.m;
-	rows_in = m_out.rows_in;
-	cols_in = m_out.cols_in;
-	matrix_vector_rows = m_out.matrix_vector_rows;
-	matrix_vector_columns = m_out.matrix_vector_columns;
-	return *this;
+matrix& matrix::operator =(const matrix& m_out) {
+	return *this = m_out.m;
 }
 
-matrix matrix::operator =(std::vector<std::vector<rational>> v) {
+matrix& matrix::operator =(const std::vector<std::vector<rational>>& v) {
+	rows_in = 1;
+	cols_in = 1;
+	matrix_vector_rows = { matrix_vector(*this, 0, 0) };
+	matrix_vector_columns = { matrix_vector(*this, 1, 0) };
+	//If empty, matrix = { {0} }
+	//if { {} }, matrix = {{0}}
 	if (!v.empty()) {
 		m = v;
-		int max_columns = v[0].size() > 1 ? v[0].size() : 1;
+		rows_in = v.size();
+		cols_in = v[0].size() > 1 ? v[0].size() : 1;
 		for (int i = 1; i < v.size(); ++i) {
 			matrix_vector_rows.push_back(matrix_vector(*this, 0, i));
 			for (int j = 1; j < v[i].size(); ++j) {
-				if (j == max_columns) {
+				if (j == matrix_vector_columns.size()) {
 					matrix_vector_columns.push_back(matrix_vector(*this, 1, j));
-					++max_columns;
+				}
+				if (j == cols_in) {
+					++cols_in;
 				}
 			}
 		}
 
 		for (int i = 0; i < v.size(); ++i) {
-			for (int j = v.size(); j < max_columns; ++j) {
+			for (int j = v[i].size(); j < cols_in; ++j) {
 				m[i].push_back(0);
 			}
 		}
@@ -201,23 +239,31 @@ matrix matrix::operator =(std::vector<std::vector<rational>> v) {
 }
 //-------------------------------------------
 
-matrix::matrix_vector matrix::row(int i)
+matrix::matrix_vector& matrix::row(int i)
 {
+	if (i >= rows_in) {
+		std::cout << "Row out of range";
+		exit(10);
+	}
 	return matrix_vector_rows.at(i);
 }
-matrix::matrix_vector matrix::col(int j) {
+matrix::matrix_vector& matrix::col(int j) {
+	if (j >= cols_in) {
+		std::cout << "Column out of range";
+		exit(10);
+	}
 	return matrix_vector_columns.at(j);
 }
 
-matrix::matrix_vector matrix::last_r() {
+matrix::matrix_vector& matrix::last_r() {
 	return matrix_vector_rows.back();
 }
-matrix::matrix_vector matrix::last_c() {
-	return matrix_vector_columns.front();
+matrix::matrix_vector& matrix::last_c() {
+	return matrix_vector_columns.back();
 }
 
 
-matrix matrix::mult_r(size_t r, rational v) {
+matrix& matrix::mult_r(size_t r, const rational &v) {
 
 	//Check if index is valid
 	if (r >= this->rows())
@@ -231,7 +277,7 @@ matrix matrix::mult_r(size_t r, rational v) {
 	return *this;
 }
 
-matrix matrix::mult_c(size_t c, rational v) {
+matrix& matrix::mult_c(size_t c, const rational& v) {
 
 	//Check if index is valid
 	if (c >= columns())
@@ -245,7 +291,7 @@ matrix matrix::mult_c(size_t c, rational v) {
 	return *this;
 }
 
-matrix matrix::sum_r(size_t r, std::vector<rational> v) {
+matrix& matrix::sum_r(size_t r, const std::vector<rational>& v) {
 
 	//Check if index is valid
 	if (r >= this->rows())
@@ -262,7 +308,7 @@ matrix matrix::sum_r(size_t r, std::vector<rational> v) {
 	return *this;
 }
 
-matrix matrix::sum_c(size_t c, std::vector<rational> v) {
+matrix& matrix::sum_c(size_t c, const std::vector<rational>& v) {
 
 	//Check if index is valid
 	if (c >= this->columns())
@@ -279,7 +325,7 @@ matrix matrix::sum_c(size_t c, std::vector<rational> v) {
 	return *this;
 }
 
-matrix matrix::piv(size_t r, size_t c) {
+matrix& matrix::piv(size_t r, size_t c) {
 	if (r >= rows() || c >= columns())
 		exit(3);
 #ifndef DEBUG
@@ -298,8 +344,8 @@ matrix matrix::piv(size_t r, size_t c) {
 
 
 
-matrix matrix::push_r(std::vector<rational> v) {
-	if (v.size() != this->columns()) {
+matrix& matrix::push_r(const std::vector<rational>& v) {
+	if (v.size() != cols_in) {
 		exit(2);
 	}
 
@@ -310,7 +356,7 @@ matrix matrix::push_r(std::vector<rational> v) {
 	return *this;
 }
 
-matrix matrix::push_c(std::vector<rational> v) {
+matrix& matrix::push_c(const std::vector<rational>& v) {
 	if (v.size() != rows_in) {
 		exit(2);
 	}
@@ -323,8 +369,9 @@ matrix matrix::push_c(std::vector<rational> v) {
 	return *this;
 }
 
-matrix matrix::pop_r() {
-	if (!m.empty()) {
+matrix& matrix::pop_r() {
+
+	if (rows_in > 1) {
 		m.pop_back();
 		matrix_vector_rows.pop_back();
 		--rows_in;
@@ -333,7 +380,7 @@ matrix matrix::pop_r() {
 	return *this;
 }
 
-matrix matrix::pop_c() {
+matrix& matrix::pop_c() {
 	if (!m.empty()) {
 		for (size_t r_i = 0; r_i < this->rows(); ++r_i) {
 			size_t last_c = this->columns() - 1;

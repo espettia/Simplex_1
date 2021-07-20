@@ -145,6 +145,8 @@
     <ClCompile Include="matrix.cpp" />
     <ClCompile Include="rational.cpp" />
     <ClCompile Include="reader.cpp" />
+    <ClCompile Include="test.cpp" />
+    <ClCompile Include="test.h" />
     <ClCompile Include="useful.cpp" />
   </ItemGroup>
   <ItemGroup>

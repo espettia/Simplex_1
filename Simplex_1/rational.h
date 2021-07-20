@@ -1,14 +1,14 @@
+#pragma once
 #include "useful.h"
 #include <iostream>
 #include <vector>
 
-#ifndef RATIONAL
-#define RATIONAL
-
 class rational {
 
 private:
-	int q[2] = { 1,1 };
+
+	int numerator = 1;
+	int denominator = 1;
 
 public:
 
@@ -17,92 +17,71 @@ public:
 
 	void simplify();
 
-	//Access elements
-
-	int& operator [](int i);
-
-	//Assignment
-
-	rational operator =(rational q2);
-
-	rational operator =(int q2);
-
-	rational operator =(const char* s);
-
 	//Basic Arithmetic
 
-	rational operator +(rational q2);
+	rational operator +(const rational& q2) const;
+	rational operator -(const rational& q2) const;
+	rational operator *(const rational& q2) const;
+	rational operator /(const rational& q2) const;
 
-	rational operator +(int n);
+	friend rational operator +(const int n, const rational& q) { return q + n; }
+	friend rational operator -(const int n, const rational& q) { return rational(n) - q; }
+	friend rational operator *(const int n, const rational& q) { return q * n; }
+	friend rational operator /(const int n, const rational& q) { return rational(n) / q; }
 
-	std::vector<rational> operator +(std::vector<rational>);
+	std::vector<rational> operator +(const std::vector<rational>& v) const;
+	std::vector<rational> operator *(const std::vector<rational>&) const;
+	std::vector<rational> operator -(const std::vector<rational>& v) const;
+	std::vector<rational> operator /(const std::vector<rational>& v) const;
 
-	rational operator -(rational q2);
-
-	rational operator -(int n);
-
-	rational operator *(rational q2);
-
-	rational operator *(int n);
-
-	std::vector<rational> operator *(std::vector<rational>);
-
-	rational operator /(rational q2);
-
-	rational operator /(int n);
-
-	template <typename T>
-	rational operator +=(T x) {
-		return *this = *this + x;
-	}
+	friend std::vector<rational> operator +(const std::vector<rational>& v, const rational& q) { return q + v; }
+	friend std::vector<rational> operator -(const std::vector<rational>& v, const rational& q) { return v + (-1 * q); }
+	friend std::vector<rational> operator *(const std::vector<rational>& v, const rational& q) { return q * v; }
+	friend std::vector<rational> operator /(const std::vector<rational>& v, const rational& q) { return v * (1 / q); }
 
 	template <typename T>
-	rational operator -=(T x) {
-		return *this = *this - x;
-	}
+	T& operator +=(const T& x) { return *this = *this + x; }
 
 	template <typename T>
-	rational operator /=(T x) {
-		return *this = *this / x;
-	}
+	T& operator -=(const T& x) { return *this = *this - x; }
 
 	template <typename T>
-	rational operator *=(T x) {
-		return *this * x;
-	}
+	T& operator /=(const T& x) { return *this = *this / x; }
 
-	bool operator ==(rational q2);
+	template <typename T>
+	T& operator *=(const T& x) { return *this = *this * x; }
 
-	bool operator !=(rational q2);
+	bool operator ==(const rational& q2) const;
+	bool operator !=(const rational& q2) const;
+	bool operator >(const rational& q2) const;
+	bool operator <(const rational& q2) const;
+	bool operator >=(const rational& q2) const;
+	bool operator <= (const rational& q2) const;
 
-	bool operator >(rational q2);
-
-	bool operator <(rational q2);
-
-	bool operator >=(rational q2);
-
-	bool operator <= (rational q2);
-
-	int sign();
+	int sign() const;
 
 	//Useful functions
 
-	double dec();
+	double dec() const;
 
-	int floor();
+	int floor() const;
 
-	rational frac();
+	rational frac() const;
 
-	int ceil();
+	int ceil() const;
 
 	int& num();
 
+	const int& num() const;
+
 	int& den();
+
+	const int& den() const;
 
 	std::string str(int option = 0);
 
 	void print(int z = 0);
 
-};
+	friend std::ostream& operator<<(std::ostream& os, rational q1);
 
-#endif
+};
