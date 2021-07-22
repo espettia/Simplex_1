@@ -145,6 +145,7 @@
     <ClCompile Include="matrix.cpp" />
     <ClCompile Include="rational.cpp" />
     <ClCompile Include="reader.cpp" />
+    <ClCompile Include="lp_algorithm.cpp" />
     <ClCompile Include="test.cpp" />
     <ClCompile Include="test.h" />
     <ClCompile Include="useful.cpp" />
@@ -154,7 +155,7 @@
     <ClInclude Include="matrix.h" />
     <ClInclude Include="rational.h" />
     <ClInclude Include="reader.h" />
-    <ClInclude Include="simplex.h" />
+    <ClInclude Include="lp_algorithm.h" />
     <ClInclude Include="useful.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

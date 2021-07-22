@@ -82,6 +82,8 @@ public:
 
 	void print(int z = 0);
 
+	rational frabs() const;
+
 	friend std::ostream& operator<<(std::ostream& os, rational q1);
 
 };

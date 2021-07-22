@@ -5,10 +5,12 @@
 #include <cassert>
 #include "rational.h"
 
+
+
 class matrix
 {
-
 	friend class matrix_vector;
+	friend class matrix_vector_iterator;
 
 protected:
 
@@ -19,6 +21,7 @@ protected:
 public:
 
 	class matrix_vector;
+	class matrix_vector_iterator;
 
 	//////////////////////////////////////ACCESS MATRIX ELEMENTS, RWOS AND COLUMNS
 
@@ -39,6 +42,51 @@ public:
 	void print();
 
 	/////////////////////////////////////////////////////////
+	// 	   
+	class matrix_vector_iterator {
+	private:
+		int i;
+		int j;
+		matrix& m;
+		bool r_c;
+	public:
+		matrix_vector_iterator(int i_out, int j_out, matrix& m_out, bool r_c_out)
+			: i(i_out), j(j_out), m(m_out), r_c(r_c_out) {}
+
+		matrix_vector_iterator& operator ++() {
+			if (r_c == 0)
+				++j;
+			else
+				++i;
+			return *this;
+		}
+
+		matrix_vector_iterator& operator --() {
+			if (r_c == 0)
+				--j;
+			else
+				--i;
+			return *this;
+		}
+
+		rational& operator *() {
+			return m.m[i][j];
+		}
+
+		rational& operator &() {
+			return m.m[i][j];
+		}
+
+		bool operator ==(const matrix_vector_iterator& right) {
+			return (i == right.i && j == right.j && &m == &right.m) ? true : false;
+		}
+		bool operator !=(const matrix_vector_iterator& right) {
+			return !(*this == right);
+		}
+
+	};
+
+
 	//MATRIX VECTOR
 	class matrix_vector
 	{
@@ -53,14 +101,23 @@ public:
 
 		matrix_vector(matrix& m_out, bool r_c_out, size_t i);
 
-		rational& operator [](int i);
 		size_t size() const;
+		rational& operator [](int i);
+		const rational& operator [](int i) const;
 		matrix_vector& operator = (const matrix_vector&);
 		matrix_vector& operator = (const std::vector<rational>&);
-		const rational& operator [](int i) const;
 		rational& front();
 		rational& back();
 		std::vector<rational> vector() const;
+
+		matrix_vector_iterator begin() {
+			return matrix_vector_iterator(r_c == 0 ? pos : 0, r_c == 0 ? 0 : pos, m, r_c);
+		}
+
+		matrix_vector_iterator end() {
+			return matrix_vector_iterator(r_c == 0 ? pos : size(), r_c == 0 ? size() : pos, m, r_c);
+		}
+
 		void print();
 	};
 
@@ -88,6 +145,10 @@ public:
 	const matrix_vector& last_r() const { return matrix_vector_rows.back(); }
 	matrix_vector& last_c();
 	const matrix_vector& last_c() const { return matrix_vector_columns.back(); }
+	matrix_vector& first_r() { return matrix_vector_rows.front(); }
+	const matrix_vector& first_r() const { return matrix_vector_rows.front(); }
+	matrix_vector& first_c() { return matrix_vector_columns.front(); }
+	const matrix_vector& first_c() const { return matrix_vector_columns.front(); }
 
 	/////////////////////////////////////METHODS THAT AFFECT THE matrix
 
@@ -128,6 +189,7 @@ public:
 	//ADDITIONAL FUNCIONS
 
 };
+
 
 //Checki f given vector is a canonical vector
 bool is_canonical(const std::vector<rational>&);

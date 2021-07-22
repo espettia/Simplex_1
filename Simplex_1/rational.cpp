@@ -180,7 +180,11 @@ void rational::print(int z){
 std::ostream& operator<<(std::ostream& os, rational q1) {
 	q1.simplify();
 	os << q1.num();
-	if (q1.num() != 0)
+	if (q1.den() != 1)
 		os <<"/" << q1.den();
 	return os;
+}
+
+rational rational::frabs() const{
+	return *this * sign();
 }

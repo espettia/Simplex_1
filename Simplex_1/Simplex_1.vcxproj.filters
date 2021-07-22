@@ -42,6 +42,9 @@
     <ClCompile Include="test.cpp">
       <Filter>Test</Filter>
     </ClCompile>
+    <ClCompile Include="lp_algorithm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="rational.h">
@@ -56,7 +59,7 @@
     <ClInclude Include="reader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="simplex.h">
+    <ClInclude Include="lp_algorithm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="matrix.h">

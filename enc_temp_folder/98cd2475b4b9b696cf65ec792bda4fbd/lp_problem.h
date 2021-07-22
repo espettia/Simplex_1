@@ -100,7 +100,7 @@ public:
 
 	const std::vector<rational> objective_function_only_variables() {
 		std::vector<rational> temp = objective_function().vector();
-		return std::vector<rational> (temp.begin() + 1, temp.begin() +  variables + 1);
+		return std::vector<rational> (temp.begin() + 1, temp.end());
 	}
 
 
@@ -110,7 +110,7 @@ public:
 
 	const std::vector<rational> constant_terms_only_constraints() {
 		std::vector<rational> temp = constant_terms().vector();
-		return std::vector<rational>(temp.begin() + 1, temp.begin() + constraints + 1);
+		return std::vector<rational>(temp.begin() + 1, temp.end());
 	}
 
 	matrix::matrix_vector& equation(int n) {
@@ -138,7 +138,7 @@ public:
 	rational& independent_term() {
 		return m.at(0, 0);
 	}
-	
+
 	lp_problem& push_eq(const std::vector<rational>& eq_out, int op_out = 0);
 	lp_problem& push_var(const std::vector<rational>& var_out, int bd_out = 1);
 	lp_problem& push_var(int n, rational val = 1, int bd_out = 1);
