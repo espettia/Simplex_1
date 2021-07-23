@@ -1,7 +1,7 @@
 #pragma once
 #include <iostream>
 #include <iomanip>
-#include <vector>
+#include <deque>
 #include <cassert>
 #include "rational.h"
 
@@ -14,7 +14,7 @@ class matrix
 
 protected:
 
-	std::vector<std::vector<rational>> m = { {rational(0)} };
+	std::deque<std::vector<rational>> m = { {rational(0)} };
 	size_t rows_in = 1;
 	size_t cols_in = 1;
 
@@ -121,8 +121,8 @@ public:
 		void print();
 	};
 
-	std::vector<matrix_vector> matrix_vector_rows;
-	std::vector<matrix_vector> matrix_vector_columns;
+	std::deque<matrix_vector> matrix_vector_rows;
+	std::deque<matrix_vector> matrix_vector_columns;
 
 	std::vector<matrix_vector>& indicator_set_size(std::vector<matrix_vector>& v, int n);
 	std::vector<matrix_vector>& indicator_increment(std::vector<matrix_vector>& v);
@@ -132,10 +132,10 @@ public:
 
 	matrix(void);
 	matrix(const matrix&);
-	matrix(const std::vector<std::vector<rational>>&);
+	matrix(const std::deque<std::vector<rational>>&);
 
 	matrix& operator =(const matrix& m_out);
-	matrix& operator =(const std::vector<std::vector<rational>>&);
+	matrix& operator =(const std::deque<std::vector<rational>>&);
 
 	matrix_vector& row(int i);
 	const matrix_vector& row(int i) const { return matrix_vector_rows.at(i); }
@@ -168,13 +168,19 @@ public:
 	matrix& piv(size_t r, size_t c);
 
 	//Push a vector at the bottom
-	matrix& push_r(const std::vector<rational>&);
+	matrix& add_bot_r(const std::vector<rational>&);
+
+	//Push a vector at the top
+	matrix& add_top_r(const std::vector<rational>&);
 
 	//Add column to the right
 	matrix& push_c(const std::vector<rational>&);
 
 	//Remove last row
-	matrix& pop_r();
+	matrix& pop_bot_r();
+
+	//Remove first row
+	matrix& pop_top_r();
 
 	//Remove last column
 	matrix& pop_c();

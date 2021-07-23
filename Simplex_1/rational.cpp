@@ -179,9 +179,11 @@ void rational::print(int z){
 
 std::ostream& operator<<(std::ostream& os, rational q1) {
 	q1.simplify();
-	os << q1.num();
+	std::string ans;
+	ans.append(std::to_string(q1.num()));
 	if (q1.den() != 1)
-		os <<"/" << q1.den();
+		ans.append("/" + std::to_string(q1.den()));
+	os << ans;
 	return os;
 }
 

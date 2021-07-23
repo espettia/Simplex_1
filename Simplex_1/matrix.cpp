@@ -171,7 +171,7 @@ matrix::matrix(void) {
 
 matrix::matrix(const matrix& m_out):matrix(m_out.m) { }
 
-matrix::matrix(const std::vector<std::vector<rational>>& v) {
+matrix::matrix(const std::deque<std::vector<rational>>& v) {
 	rows_in = 1;
 	cols_in = 1;
 	matrix_vector_rows = { matrix_vector(*this, 0, 0) };
@@ -206,7 +206,7 @@ matrix& matrix::operator =(const matrix& m_out) {
 	return *this = m_out.m;
 }
 
-matrix& matrix::operator =(const std::vector<std::vector<rational>>& v) {
+matrix& matrix::operator =(const std::deque<std::vector<rational>>& v) {
 	rows_in = 1;
 	cols_in = 1;
 	matrix_vector_rows = { matrix_vector(*this, 0, 0) };
@@ -344,7 +344,7 @@ matrix& matrix::piv(size_t r, size_t c) {
 
 
 
-matrix& matrix::push_r(const std::vector<rational>& v) {
+matrix& matrix::add_bot_r(const std::vector<rational>& v) {
 	if (v.size() != cols_in) {
 		exit(2);
 	}
@@ -353,6 +353,18 @@ matrix& matrix::push_r(const std::vector<rational>& v) {
 	++rows_in;
 	matrix_vector_rows.push_back(matrix_vector(*this, 0, rows_in - 1));
 	
+	return *this;
+}
+
+matrix& matrix::add_top_r(const std::vector<rational>& v) {
+	if (v.size() != cols_in) {
+		exit(2);
+	}
+
+	m.push_front(v);
+	++rows_in;
+	matrix_vector_rows.push_back(matrix_vector(*this, 0, rows_in - 1));
+
 	return *this;
 }
 
@@ -369,7 +381,7 @@ matrix& matrix::push_c(const std::vector<rational>& v) {
 	return *this;
 }
 
-matrix& matrix::pop_r() {
+matrix& matrix::pop_bot_r() {
 
 	if (rows_in > 1) {
 		m.pop_back();
@@ -377,6 +389,17 @@ matrix& matrix::pop_r() {
 		--rows_in;
 	}
 		
+	return *this;
+}
+
+matrix& matrix::pop_top_r() {
+
+	if (rows_in > 1) {
+		m.pop_front();
+		matrix_vector_rows.pop_back();
+		--rows_in;
+	}
+
 	return *this;
 }
 
@@ -396,7 +419,7 @@ matrix& matrix::pop_c() {
 //
 matrix matrix::transpose() {
 
-	std::vector<std::vector<rational>> m1;
+	std::deque<std::vector<rational>> m1;
 	for (size_t j = 0; j < this->columns(); ++j) {
 		std::vector<rational> tmp;
 		for (size_t i = 0; i < this->rows(); ++i)

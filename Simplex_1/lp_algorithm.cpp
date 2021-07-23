@@ -7,7 +7,7 @@
 ///___________________________________________________________________________________________///
 
 bool simplex_base::check_solvable(lp_problem p_out) {
-	for (auto& it : p_out.constant_terms().vector())
+	for (auto& it : p_out.constant_terms_only_constraints())
 		if (it < 0) return 0;
 	for (auto& it : p_out.boundaries())
 		if (it <= 0) return 0;
@@ -25,7 +25,7 @@ bool simplex_base::check_solved() {
 
 bool simplex_base::check_unbounded() {
 
-	size_t j = 0;
+	size_t j = 1;
 	for (const auto& it : p.objective_function_only_variables()) {
 		if (it < 0) {
 			bool exists_positive = 0;
@@ -75,15 +75,14 @@ std::vector<size_t> simplex_base::find_pivot() {
 	}
 
 	flag = 0;
-	size_t i = 1;
+	size_t i = p.number_of_obj_functions();
 
 	//Usé esta forma para simplex debería hacerla universal para simplex_base ybsimplex al mismo timeop
 	//de alguna forma debe ignorar la última ecuación cuando pivotea simplex
 	//pero simplex_base pivotea sobre todas las ecuaciones
 
 	//NO está mal pivotear, si no encontrar el pivote
-	for (auto it = ++p.column(k_lw).begin(); it != --p.column(k_lw).end(); ++it){
-		aik = *it;
+	for(auto aik : p.column_only_constraints(k_lw)){
 		if (aik > 0) {
 			aik = p.constant_terms()[i] / aik;
 			if (flag == 0) {
@@ -108,9 +107,10 @@ std::vector<size_t> simplex_base::find_pivot() {
 
 
 
-solution simplex_base::solve(lp_problem p_out) {
+solution simplex_base::solve(lp_problem p_out, std::vector<int>basic_var_out) {
 
 	simplex_base problem(p_out);
+	problem.basic_var_in = basic_var_out;
 
 #ifndef NDEBUG
 	std::cout << "solve()" << std::endl;
@@ -121,16 +121,18 @@ solution simplex_base::solve(lp_problem p_out) {
 	while (!problem.check_finished()) {
 		pivot = problem.find_pivot();
 #ifndef NDEBUG
-		std::cout << std::endl << "Pivot at: " << pivot[0] - 1 << " " << pivot[1] - 1 << std::endl;
+		std::cout << std::endl << "Pivot at: " << pivot[0] - problem.p.number_of_obj_functions() << " " << pivot[1] - 1 << std::endl << std::endl;
 #endif // NDEBUG
 		problem.p.piv(pivot[0], pivot[1]);
-		problem.basic_var_in[pivot[0] - 1] = pivot[1];
+		problem.basic_var_in[pivot[0] - problem.p.number_of_obj_functions()] = pivot[1];
 #ifndef NDEBUG
 		problem.p.print_tableau();
+		for (auto& asdf : problem.basic_var_in) std::cout << asdf << " ";
+		std::cout << std::endl;
 #endif // NDEBUG
 	}
 
-	return solution(problem.p_original, problem.p);
+	return solution(problem.p_original, problem.p, problem.basic_var_in, "SOLVED");
 }
 
 ///___________________________________________________________________________________________///
@@ -152,8 +154,10 @@ int	simplex::check_w_valid() {
 void simplex::add_artificial_variables() {
 
 	////Add a number of variables equal to the number of constraints
+	size_t var_numb = p.number_of_variables();
 	for (size_t i = 1; i <= p.number_of_constraints(); ++i)
 	{
+		basic_var_in[i - 1] = var_numb + i - 1;
 		p.push_var(i);
 		++artificial_variables;
 	}
@@ -166,14 +170,12 @@ void simplex::add_artificial_variables() {
 		}
 
 	//Change objective function
-	p.push_eq(p.objective_function().vector());
-	p.objective_function() = w_problem;
+	p.push_obj_function(w_problem);
 	st_w = 1;
 }
 void simplex::remove_artificial_variables() {
 	//Remove w-problem
-	p.objective_function() = p.last_eq();
-	p.pop_eq();
+	p.pop_obj_function();
 
 	//Remove variables
 	while (artificial_variables) {
@@ -215,7 +217,7 @@ void simplex::make_valid() {
 	std::cout << std::endl;
 #endif // !NDEBUG
 
-	if (valid_basic_variables == p.number_of_constraints() - 1) {
+	if (valid_basic_variables == p.number_of_constraints()) {
 		std::cout << "W-PROBLEM SOLVED. STANDARD FORM FOUND" << std::endl;
 	}
 	else
@@ -226,20 +228,22 @@ void simplex::make_valid() {
 #endif // !NDEBUG
 
 		size_t missing_basic_variables = p.number_of_constraints() - valid_basic_variables;
-		for (size_t i = 1; i <= p.number_of_constraints(); ++i) {
-			if ((size_t)basic_var_in[i] >= p.number_of_variables() - artificial_variables) {
+		for (size_t i = 0; i < p.number_of_constraints(); ++i) {
+			std::cout << p.number_of_variables() - artificial_variables + 1 << std::endl;
+			if ((size_t)basic_var_in[i] >= p.number_of_variables() - artificial_variables + 1) {
 				for (size_t j = 1; j <= p.number_of_variables(); ++j) {
 					if (basic_map[j - 1] == 0 && p.equation(i)[j] != 0) {
 						//For debugging
 #ifndef NDEBUG
-						std::cout << "Pivot at:" << i << " " << j << std::endl;
+						std::cout << std::endl << "Pivot at: " << i << " " << j - 1 << std::endl << std::endl;
+						std::cout << "Pivot at:" << i << " " << j << std::endl << std::endl;
 #endif // NDEBUG
-						p.piv(i, j);
+						p.piv(i+p.number_of_obj_functions(), j);
 #ifndef NDEBUG
 						p.print_tableau();
 
 #endif // NDEBUG
-						basic_var_in[i - 1] = (int)j;
+						basic_var_in[i] = (int)j;
 						basic_map[j - 1] = 1;
 
 #ifndef NDEBUG
@@ -258,21 +262,17 @@ void simplex::make_valid() {
 #ifndef NDEBUG
 			std::cout << "REMOVING REDUNDANT EQUATIONS" << std::endl;
 #endif // !NDEBUG
-			std::vector<rational> z_function = p.last_eq().vector();
-			p.pop_eq();
 			for (size_t i = 0; i < missing_basic_variables; ++i) {
 				p.pop_eq();
 #ifndef NDEBUG
 				std::cout << "REMOVED " << i + 1 << (i == 0 ? " EQUATION" : "EQUATIONS") << std::endl;
 #endif // !NDEBUG
 			}
-			p.push_eq(z_function);
 #ifndef NDEBUG
 			std::cout << "PROBLEM BECOMES:" << std::endl;
 			p.print_tableau();
 #endif // !NDEBUG
 		}
-
 #ifndef NDEBUG
 		std::cout << "W-PROBLEM SOLVED. STANDARD FORM HAS BEEN FOUND." << std::endl;
 #endif // !NDEBUG
@@ -297,7 +297,9 @@ void simplex::standard() {
 	st_fin = 0;
 
 	//PERFORM OPERATIONS
-	p = simplex_base::solve(p).final_form();
+	solution sol = simplex_base::solve(p, basic_var_in);
+	p = sol.final_form();
+	basic_var_in = sol.basic_variables();
 	make_valid();
 	//END OF OPERATIONS
 	remove_artificial_variables();
@@ -311,7 +313,7 @@ void simplex::standard() {
 solution simplex::solve(lp_problem p_out) {
 	simplex problem(p_out);
 	problem.standard();
-	return simplex_base::solve(problem.p);
+	return simplex_base::solve(problem.p, problem.basic_var_in);
 }
 
 bool simplex::check_solvable(lp_problem p_out) {

@@ -1,7 +1,7 @@
 #pragma once
 #include <iostream>
 #include <cassert>
-#include <vector>
+#include <deque>
 #include <string>
 #include "rational.h"
 #include "matrix.h"
@@ -15,9 +15,10 @@ private:
 	std::vector<int> basic_var_in;
 	std::string message;
 public:
-	solution(lp_problem a, lp_problem b): p_original(a), p_final(b) {}
+	solution(lp_problem original_out, lp_problem final_out, std::vector<int> basic_variables_out = {}, std::string message_out = "RESULT: ") : p_original(original_out), p_final(final_out), basic_var_in(basic_variables_out), message(message_out) {}
 	lp_problem final_form() { return p_final; }
 	lp_problem original_form() { return p_original; }
+	const std::vector<int>& basic_variables() { return basic_var_in; }
 
 };
 
@@ -50,7 +51,9 @@ protected:
 
 public:
 
-	simplex_base(lp_problem p_out) : lp_algorithm(p_out) { p = p_original; basic_var_in = std::vector<int>(p_original.number_of_constraints(), -1); }
+	simplex_base(lp_problem p_out) : lp_algorithm(p_out) { 
+		p = p_original; 
+	basic_var_in = std::vector<int>(p_original.number_of_constraints(), -1); }
 	//std::vector<int> basic_var_in;
 	bool check_solved() override;
 	bool check_unbounded() override;
@@ -60,7 +63,7 @@ public:
 	//std::vector<int>& basic_var();
 
 	static bool check_solvable(lp_problem p_out);
-	static solution solve(lp_problem p_out);
+	static solution solve(lp_problem p_out, std::vector<int> basic_var_out = {});
 
 };
 

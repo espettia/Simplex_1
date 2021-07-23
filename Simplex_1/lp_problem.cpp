@@ -1,9 +1,22 @@
 #include "lp_problem.h"
 
+lp_problem& lp_problem::push_obj_function(const std::vector<rational>& obj_f_out, int op_out) {
+	m.add_top_r(obj_f_out);
+	op.push_front(op_out);
+	++obj_functions;
+	return *this;
+}
+
+lp_problem& lp_problem::pop_obj_function() {
+	m.pop_top_r();
+	op.pop_front();
+	--obj_functions;
+	return *this;
+}
 
 lp_problem& lp_problem::push_eq(const std::vector<rational>& eq_out, int op_out) {
 	
-	m.push_r(eq_out);
+	m.add_bot_r(eq_out);
 	op.push_back(op_out);
 	++constraints;
 	return *this;
@@ -29,9 +42,10 @@ lp_problem& lp_problem::push_var(int n, rational val, int bd_out) {
 	return *this;
 
 }
+
 lp_problem& lp_problem::pop_eq() {
 
-	m.pop_r();
+	m.pop_bot_r();
 	bd.pop_back();
 	--constraints;
 	return *this;
@@ -83,7 +97,7 @@ lp_problem& lp_problem::to_min_problem() {
 	for (size_t i = 1; i < constraints + 1; ++i) {
 		if (op[i] == 0) {
 			op.push_back(-1);
-			m.push_r(m.row(i).vector());
+			m.add_bot_r(m.row(i).vector());
 			++constraints; //REVISAR, CREO QUE HABÍA ALGO ADICIONAL
 		}
 		else if (op[i] < 0)
@@ -101,7 +115,7 @@ lp_problem& lp_problem::to_max_problem() {
 	for (size_t i = 1; i < constraints + 1; ++i) {
 		if (op[i] == 0) {
 			op.push_back(1);
-			m.push_r(m.row(i).vector());
+			m.add_bot_r(m.row(i).vector());
 			++constraints;//LO MISMO, CREO QUE FALTA ALGO
 		}
 		else if (op[i] > 0) 
@@ -143,7 +157,6 @@ lp_problem& lp_problem::add_slack_variables() {
 
 //Esto también falta
 std::vector<int> lp_problem::basic_map() {
-
 	std::vector<int> basic(m.columns(), -1);
 	for (size_t i = 0; i < constraints + 1; ++i) {
 		for (size_t j = 0; j < variables; ++j) {
@@ -153,7 +166,6 @@ std::vector<int> lp_problem::basic_map() {
 		}
 	}
 	return basic;
-
 }
 
 lp_problem lp_problem::dual() {
@@ -163,10 +175,9 @@ lp_problem lp_problem::dual() {
 	//p1.st_w = 0;
 
 	p1.to_max_problem();
-
+	p1.print_tableau();
 	p1.m = p1.m.transpose();
-
-	p1.op = std::vector<int>(p1.m.rows() - 1, 1);
+	p1.op = std::deque<int>(p1.m.rows(), 1);
 
 	size_t temp_constraints = p1.constraints;
 	p1.constraints = p1.variables;
@@ -178,15 +189,18 @@ lp_problem lp_problem::dual() {
 }
 
 void lp_problem::print_tableau() {
-	for (auto& equation_it : equations_iterate())
+	for (auto& equation : equations)
 	{
-		for (auto& term : equation_it)
+		for (auto& term : equation)
 			std::cout << std::setw(10) << term;
 		std::cout << std::endl;
 	}
-	for (auto& term : objective_function())
-		std::cout << std::setw(10) << term;
-	std::cout << std::endl << std::endl;
+	for (auto& function : functions) {
+		for (auto& term : function)
+			std::cout << std::setw(10) << term;
+		std::cout << std::endl;
+	}
+	std::cout << std::endl;
 }
 
 void lp_problem::print_op(size_t i) {
